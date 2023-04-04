@@ -109,6 +109,8 @@ def _clean_words_to_num(clean_words):
     # if len(clean_negative_numbers) > 0:
     if negative_number:
         total_sum = f"-{total_sum}"
+        if "." in total_sum: return float(total_sum)
+        else: return int(total_sum)
         
     return total_sum
 
