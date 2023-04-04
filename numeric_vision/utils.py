@@ -1,5 +1,118 @@
 from numeric_vision.config import *
 
+
+def word_to_num(number_sentence):
+    """
+    function to return integer for an input `number_sentence` string
+    input: string
+    output: int or double or None
+    """
+    if type(number_sentence) is not str:
+        raise ValueError(
+            "Type of input is not string! Please enter a valid number word (eg. \'two million twenty three thousand and forty nine\')")
+    if number_sentence.isdigit():  # return the number if user enters a number string
+        return int(number_sentence)
+    # split_words = number_sentence.replace('-', ' ').replace(',', ' ').lower().split()
+    # split_words = number_sentence.replace('-', ' ').lower().split()
+    split_words = _split_commas(number_sentence.replace('-', ' ').lower().split())
+
+    words = _batch_numbers(split_words)
+    # removing and, & etc.
+    # clean_numbers = [word for word in split_words if word in NUMBER_WORDS]
+    clean_numbers = _prepare_clean_numbers(words)
+    output = []
+    for item in clean_numbers:
+        output.append(_clean_words_to_num(item))
+    return output
+    # return _clean_words_to_num(clean_numbers)
+
+
+def _split_commas(input_list):
+    output_list = []
+
+    for item in input_list:
+        # if the item is only a ',' just append it in the output list
+        if ',' in item and len(item) > 1:
+            sub_items = item.split(',')
+            for sub_item in sub_items:
+                # after the strip a sub_item might be equal to "", so do not append it
+                if sub_item != "":
+                    output_list.append(sub_item.strip())
+                output_list.append(',')
+            output_list.pop() # Remove the last comma
+        else:
+            output_list.append(item)
+
+    return output_list
+
+
+def _batch_numbers(input_list):
+    output_list = []
+    temp = []
+    for item in input_list:
+        if item != ",":
+            temp.append(item)
+        else:
+            output_list.append(temp)
+            temp = []
+
+    output_list.append(temp)
+    
+    return output_list
+
+
+def _prepare_clean_numbers(input_list):
+    output_list = []
+
+    for item in input_list:
+        temp = []
+        for sub_item in item:
+            if sub_item in NUMBER_WORDS:
+                temp.append(sub_item)
+        output_list.append(temp)
+    
+    return output_list
+
+
+def _clean_words_to_num(clean_words):
+    _validate_clean_words(clean_words)
+    negative_number = False
+    clean_decimal_numbers = []
+    # separate decimal part of number (if exists)
+    if clean_words.count('point') == 1:
+        clean_decimal_numbers = clean_words[clean_words.index('point') + 1:]
+        clean_words = clean_words[:clean_words.index('point')]
+        
+    # separate negative part of number (if exists)
+    if clean_words.count('minus') == 1:
+        negative_number = True
+        clean_words.remove('minus')
+        
+    total_sum = 0  # storing the number to be returned
+    print(f"clean words: {clean_words}")
+    if len(clean_words) > 0:
+        for word in SECTION_WORDS:
+            word_index = clean_words.index(word) if word in clean_words else -1
+            if word_index > -1:
+                # print(clean_words[:word_index])
+                total_sum += _number_formation(clean_words[:word_index])
+                clean_words = clean_words[word_index + 1:]
+            total_sum *= 1000
+        if clean_words:
+            total_sum += _number_formation(clean_words)
+    
+    # adding decimal part to total_sum (if exists)
+    if len(clean_decimal_numbers) > 0:
+        decimal_sum = _get_decimal_sum(clean_decimal_numbers)
+        total_sum += decimal_sum
+    
+    # if len(clean_negative_numbers) > 0:
+    if negative_number:
+        total_sum = f"-{total_sum}"
+        
+    return total_sum
+
+
 def _number_formation(number_strings):
     """
     function to form numeric multipliers for million, billion, thousand etc.
@@ -31,24 +144,6 @@ def _get_decimal_sum(decimal_digit_words):
             decimal_number_str.append(NUMBERS_ENGLISH[dec_word])
     final_decimal_string = '0.' + ''.join(map(str, decimal_number_str))
     return float(final_decimal_string)
-
-
-def word_to_num(number_sentence):
-    """
-    function to return integer for an input `number_sentence` string
-    input: string
-    output: int or double or None
-    """
-    if type(number_sentence) is not str:
-        raise ValueError(
-            "Type of input is not string! Please enter a valid number word (eg. \'two million twenty three thousand and forty nine\')")
-    if number_sentence.isdigit():  # return the number if user enters a number string
-        return int(number_sentence)
-    split_words = number_sentence.replace('-', ' ').replace(',', ' ').lower().split()
-
-    # removing and, & etc.
-    clean_numbers = [word for word in split_words if word in NUMBER_WORDS]
-    return _clean_words_to_num(clean_numbers)
 
 
 def numwords_in_sentence(sentence):
@@ -113,47 +208,3 @@ def _validate_clean_words(clean_words):
     if sorted_seps != separators:
         raise ValueError(
             "Malformed number! Something is out of order here.")
-
-        
-def _clean_words_to_num(clean_words):
-    _validate_clean_words(clean_words)
-    negative_number = False
-    clean_decimal_numbers = []
-    # separate decimal part of number (if exists)
-    if clean_words.count('point') == 1:
-        clean_decimal_numbers = clean_words[clean_words.index('point') + 1:]
-        clean_words = clean_words[:clean_words.index('point')]
-        
-    # separate negative part of number (if exists)
-    if clean_words.count('minus') == 1:
-        negative_number = True
-        # del clean_words[clean_words.index('minus')]
-        clean_words.remove('minus')
-    if clean_words.count('-') == 1:
-        negative_number = True
-        # del clean_words[clean_words.index('minus')]
-        clean_words.remove('-')
-        
-    total_sum = 0  # storing the number to be returned
-    print(f"clean words: {clean_words}")
-    if len(clean_words) > 0:
-        for word in SECTION_WORDS:
-            word_index = clean_words.index(word) if word in clean_words else -1
-            if word_index > -1:
-                # print(clean_words[:word_index])
-                total_sum += _number_formation(clean_words[:word_index])
-                clean_words = clean_words[word_index + 1:]
-            total_sum *= 1000
-        if clean_words:
-            total_sum += _number_formation(clean_words)
-    
-    # adding decimal part to total_sum (if exists)
-    if len(clean_decimal_numbers) > 0:
-        decimal_sum = _get_decimal_sum(clean_decimal_numbers)
-        total_sum += decimal_sum
-    
-    # if len(clean_negative_numbers) > 0:
-    if negative_number:
-        total_sum = f"-{total_sum}"
-        
-    return total_sum
