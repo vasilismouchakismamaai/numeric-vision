@@ -89,12 +89,10 @@ def _clean_words_to_num(clean_words):
         clean_words.remove('minus')
         
     total_sum = 0  # storing the number to be returned
-    print(f"clean words: {clean_words}")
     if len(clean_words) > 0:
         for word in SECTION_WORDS:
             word_index = clean_words.index(word) if word in clean_words else -1
             if word_index > -1:
-                # print(clean_words[:word_index])
                 total_sum += _number_formation(clean_words[:word_index])
                 clean_words = clean_words[word_index + 1:]
             total_sum *= 1000

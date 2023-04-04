@@ -23,5 +23,14 @@ class TestWordToNum(unittest.TestCase):
         self.assertEqual(word_to_num("minus point six")[0], -0.6)
         self.assertEqual(word_to_num("point zero seven")[0], 0.07)
 
+    
+    def test_comma_separated_numbers(self):
+        self.assertEqual(word_to_num("five, three, one"), [5, 3, 1])
+        self.assertEqual(word_to_num("five,three,one"), [5, 3, 1])
+        self.assertEqual(word_to_num("five ,three ,one"), [5, 3, 1])
+        self.assertEqual(word_to_num("five, three ,one"), [5, 3, 1])
+        self.assertEqual(word_to_num("five , point three , minus one"), [5, 0.3, -1])
+        self.assertEqual(word_to_num("minus five billion ,point three, minus one"), [-5000000000, 0.3, -1])
+
 if __name__ == '__main__':
     unittest.main()
