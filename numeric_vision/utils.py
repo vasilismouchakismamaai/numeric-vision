@@ -97,7 +97,7 @@ def _clean_words_to_num(clean_words):
             total_sum *= 1000
         if clean_words:
             total_sum += _number_formation(clean_words)
-    
+        
     # adding decimal part to total_sum (if exists)
     if len(clean_decimal_numbers) > 0:
         decimal_sum = _get_decimal_sum(clean_decimal_numbers)
@@ -145,47 +145,6 @@ def _get_decimal_sum(decimal_digit_words):
     return float(final_decimal_string)
 
 
-def numwords_in_sentence(sentence):
-    if type(sentence) is not str:
-        raise ValueError(
-            "Type of input is not string! Please enter a valid number word (eg. \'two million twenty three thousand and forty nine\')")
-
-    # TODO: some way to tell the difference between "one thousand, two hundred, and three" = 1203 and
-    # TODO  "four, seven, twelve, three" = "4, 7, 12, 3"
-    number_sentence = sentence.replace('-', ' ').replace(',', ' ').lower()
-    split_words = number_sentence.strip().split()  # strip extra spaces and split sentence into words
-
-    last_found_index = 0
-    new_sentence = ''
-    i = 0
-    while i < len(split_words):
-        if split_words[i] in NUMBER_WORDS:
-            num_words = split_words[i - 1:i + 1] if i > 0 and split_words[i - 1] == 'a' else [split_words[i]]
-            clean_words = [split_words[i]]
-            while i + 1 < len(split_words) and split_words[i + 1] in NUMBER_SAFE_WORDS:
-                i += 1
-                num_words.append(split_words[i])
-                if split_words[i] in NUMBER_WORDS:
-                    clean_words.append(split_words[i])
-            num = _clean_words_to_num(clean_words)
-            replace_start, replace_end = _get_replaceable(number_sentence, num_words, last_found_index)
-            new_sentence += sentence[last_found_index:replace_start] + str(num)
-            last_found_index = replace_end
-        i += 1
-
-    new_sentence += sentence[last_found_index:]
-    
-    return new_sentence
-
-
-def _get_replaceable(sentence, clean_words, last_found_index):
-    start = sentence[last_found_index:].find(clean_words[0]) + last_found_index
-    end = start + len(clean_words[0])
-    for word in clean_words[1:]:
-        end += sentence[end:].lower().find(word) + len(word)
-    return start, end
-
-
 def _validate_clean_words(clean_words):
     # Error message if the user enters invalid input!
     if len(clean_words) == 0:
@@ -207,3 +166,44 @@ def _validate_clean_words(clean_words):
     if sorted_seps != separators:
         raise ValueError(
             "Malformed number! Something is out of order here.")
+    
+
+# def numwords_in_sentence(sentence):
+#     if type(sentence) is not str:
+#         raise ValueError(
+#             "Type of input is not string! Please enter a valid number word (eg. \'two million twenty three thousand and forty nine\')")
+
+#     # TODO: some way to tell the difference between "one thousand, two hundred, and three" = 1203 and
+#     # TODO  "four, seven, twelve, three" = "4, 7, 12, 3"
+#     number_sentence = sentence.replace('-', ' ').replace(',', ' ').lower()
+#     split_words = number_sentence.strip().split()  # strip extra spaces and split sentence into words
+
+#     last_found_index = 0
+#     new_sentence = ''
+#     i = 0
+#     while i < len(split_words):
+#         if split_words[i] in NUMBER_WORDS:
+#             num_words = split_words[i - 1:i + 1] if i > 0 and split_words[i - 1] == 'a' else [split_words[i]]
+#             clean_words = [split_words[i]]
+#             while i + 1 < len(split_words) and split_words[i + 1] in NUMBER_SAFE_WORDS:
+#                 i += 1
+#                 num_words.append(split_words[i])
+#                 if split_words[i] in NUMBER_WORDS:
+#                     clean_words.append(split_words[i])
+#             num = _clean_words_to_num(clean_words)
+#             replace_start, replace_end = _get_replaceable(number_sentence, num_words, last_found_index)
+#             new_sentence += sentence[last_found_index:replace_start] + str(num)
+#             last_found_index = replace_end
+#         i += 1
+
+#     new_sentence += sentence[last_found_index:]
+    
+#     return new_sentence
+
+
+# def _get_replaceable(sentence, clean_words, last_found_index):
+#     start = sentence[last_found_index:].find(clean_words[0]) + last_found_index
+#     end = start + len(clean_words[0])
+#     for word in clean_words[1:]:
+#         end += sentence[end:].lower().find(word) + len(word)
+#     return start, end
