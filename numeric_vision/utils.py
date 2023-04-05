@@ -24,7 +24,6 @@ def word_to_num(number_sentence):
     for item in clean_numbers:
         output.append(_clean_words_to_num(item))
     return output
-    # return _clean_words_to_num(clean_numbers)
 
 
 def _split_commas(input_list):
