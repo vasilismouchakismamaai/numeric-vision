@@ -62,14 +62,13 @@ def _batch_numbers(input_list):
 
 def _prepare_clean_numbers(input_list):
     output_list = []
-
     for item in input_list:
         temp = []
         for sub_item in item:
-            if sub_item in NUMBER_WORDS:
-                temp.append(sub_item)
+            word = _check_plural_section_word(sub_item)
+            if word in NUMBER_WORDS:
+                temp.append(word)
         output_list.append(temp)
-    
     return output_list
 
 
@@ -110,6 +109,14 @@ def _clean_words_to_num(clean_words):
         else: return int(total_sum)
         
     return total_sum
+
+
+def _check_plural_section_word(word):
+    # TODO: find better way to check for plural, it should work for other languages too
+    for section_word in SECTION_WORDS:
+        if word == section_word + "s":
+            return section_word
+    return word
 
 
 def _number_formation(number_strings):
