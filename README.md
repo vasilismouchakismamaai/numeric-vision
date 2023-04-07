@@ -1,3 +1,5 @@
+# Discontinued - see [here](https://github.com/the-mama-ai/nlu-ner-builtin)
+
 # NumericVision
 ### A simple app that extracts numbers from text.
 
